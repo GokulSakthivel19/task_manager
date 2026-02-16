@@ -13,14 +13,14 @@ app.use(express.json());
 
 // Debug: Log environment variable status
 console.log('Environment check:');
-console.log('MONGODB_URI exists:', !!process.env.MONGODB_URI);
-console.log('MONGODB_URI length:', process.env.MONGODB_URI ? process.env.MONGODB_URI.length : 0);
+console.log('MONGO_URI exists:', !!process.env.MONGO_URI);
+console.log('MONGO_URI length:', process.env.MONGO_URI ? process.env.MONGO_URI.length : 0);
 
 // MongoDB Connection
-const mongoURI = process.env.MONGODB_URI;
+const mongoURI = process.env.MONGO_URI;
 
 if (!mongoURI) {
-    console.error('FATAL ERROR: MONGODB_URI is not defined in environment variables');
+    console.error('FATAL ERROR: MONGO_URI is not defined in environment variables');
     process.exit(1);
 }
 

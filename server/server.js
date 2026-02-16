@@ -11,8 +11,20 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+// Debug: Log environment variable status
+console.log('Environment check:');
+console.log('MONGODB_URI exists:', !!process.env.MONGODB_URI);
+console.log('MONGODB_URI length:', process.env.MONGODB_URI ? process.env.MONGODB_URI.length : 0);
+
 // MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI, {
+const mongoURI = process.env.MONGODB_URI;
+
+if (!mongoURI) {
+    console.error('FATAL ERROR: MONGODB_URI is not defined in environment variables');
+    process.exit(1);
+}
+
+mongoose.connect(mongoURI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })

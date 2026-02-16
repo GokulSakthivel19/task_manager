@@ -157,4 +157,65 @@ router.delete('/tasks/:day', async (req, res) => {
     }
 });
 
+// POST add subtask to a day
+router.post('/tasks/:day/subtasks', async (req, res) => {
+    try {
+        const { text } = req.body;
+        const task = await Task.findOne({ dayNumber: req.params.day });
+
+        if (!task) {
+            return res.status(404).json({ message: 'Task not found' });
+        }
+
+        task.subtasks.push({ text, completed: false });
+        await task.save();
+
+        res.status(201).json(task);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
+// PUT toggle subtask completion
+router.put('/tasks/:day/subtasks/:subtaskId', async (req, res) => {
+    try {
+        const { completed } = req.body;
+        const task = await Task.findOne({ dayNumber: req.params.day });
+
+        if (!task) {
+            return res.status(404).json({ message: 'Task not found' });
+        }
+
+        const subtask = task.subtasks.id(req.params.subtaskId);
+        if (!subtask) {
+            return res.status(404).json({ message: 'Subtask not found' });
+        }
+
+        subtask.completed = completed;
+        await task.save();
+
+        res.json(task);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
+// DELETE subtask
+router.delete('/tasks/:day/subtasks/:subtaskId', async (req, res) => {
+    try {
+        const task = await Task.findOne({ dayNumber: req.params.day });
+
+        if (!task) {
+            return res.status(404).json({ message: 'Task not found' });
+        }
+
+        task.subtasks.pull(req.params.subtaskId);
+        await task.save();
+
+        res.json(task);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
 module.exports = router;

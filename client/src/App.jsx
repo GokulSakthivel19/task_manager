@@ -7,6 +7,7 @@ function App() {
   const [tasks, setTasks] = useState([]);
   const [selectedDay, setSelectedDay] = useState(null);
   const [taskText, setTaskText] = useState('');
+  const [newSubtask, setNewSubtask] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -40,6 +41,7 @@ function App() {
         allDays.push(taskMap[i] || {
           dayNumber: i,
           taskText: '',
+          subtasks: [],
           status: 'pending',
           dateCreated: new Date()
         });
@@ -74,6 +76,7 @@ function App() {
   const handleCloseModal = () => {
     setSelectedDay(null);
     setTaskText('');
+    setNewSubtask(null);
   };
 
   const handleSaveTask = async () => {
@@ -169,6 +172,72 @@ function App() {
     }
   };
 
+  const handleAddSubtask = async () => {
+    if (!selectedDay || !newSubtask.trim()) return;
+
+    try {
+      setSaving(true);
+      const response = await fetch(`${API_URL}/tasks/${selectedDay.dayNumber}/subtasks`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: newSubtask.trim() })
+      });
+
+      if (response.ok) {
+        await fetchTasks();
+        setNewSubtask(null);
+        // Update selected day with new data
+        const updatedTask = await response.json();
+        setSelectedDay(updatedTask);
+      }
+    } catch (error) {
+      console.error('Error adding subtask:', error);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleToggleSubtask = async (subtaskId, currentStatus) => {
+    if (!selectedDay) return;
+
+    try {
+      const response = await fetch(`${API_URL}/tasks/${selectedDay.dayNumber}/subtasks/${subtaskId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ completed: !currentStatus })
+      });
+
+      if (response.ok) {
+        await fetchTasks();
+        // Update selected day with new data
+        const updatedTask = await response.json();
+        setSelectedDay(updatedTask);
+      }
+    } catch (error) {
+      console.error('Error toggling subtask:', error);
+    }
+  };
+
+  const handleDeleteSubtask = async (subtaskId) => {
+    if (!selectedDay) return;
+
+    try {
+      const response = await fetch(`${API_URL}/tasks/${selectedDay.dayNumber}/subtasks/${subtaskId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (response.ok) {
+        await fetchTasks();
+        // Update selected day with new data
+        const updatedTask = await response.json();
+        setSelectedDay(updatedTask);
+      }
+    } catch (error) {
+      console.error('Error deleting subtask:', error);
+    }
+  };
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'completed':
@@ -217,7 +286,7 @@ function App() {
               className={`day-card ${getStatusColor(task.status)}`}
               onClick={() => handleDayClick(task)}
             >
-              {task.taskText && <div className="task-indicator"></div>}
+              {(task.taskText || (task.subtasks && task.subtasks.length > 0)) && <div className="task-indicator"></div>}
               <div className="day-number">{task.dayNumber}</div>
               <div className="day-label">Day</div>
             </div>
@@ -246,26 +315,77 @@ function App() {
                 </div>
               </div>
 
+              {/* Subtasks Section */}
               <div className="form-group">
-                <label className="form-label">Task / Notes</label>
-                <textarea
-                  className="task-textarea"
-                  placeholder="What do you want to accomplish today?"
-                  value={taskText}
-                  onChange={(e) => setTaskText(e.target.value)}
-                  disabled={saving}
-                />
+                <div className="checklist-header">
+                  <label className="form-label">Task Checklist</label>
+                  <button
+                    className="btn-add-task-icon"
+                    onClick={() => setNewSubtask(newSubtask === null ? '' : null)}
+                    title="Add new task"
+                  >
+                    {newSubtask === null ? '+' : '×'}
+                  </button>
+                </div>
+
+                {/* Inline add task input - shows when + is clicked */}
+                {newSubtask !== null && (
+                  <div className="inline-add-task">
+                    <input
+                      type="text"
+                      className="inline-task-input"
+                      placeholder="Enter task name..."
+                      value={newSubtask}
+                      onChange={(e) => setNewSubtask(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter' && newSubtask.trim()) {
+                          handleAddSubtask();
+                        }
+                      }}
+                      autoFocus
+                      disabled={saving}
+                    />
+                    <button
+                      className="btn-save-inline-task"
+                      onClick={handleAddSubtask}
+                      disabled={saving || !newSubtask.trim()}
+                    >
+                      Add
+                    </button>
+                  </div>
+                )}
+
+                {/* Display existing subtasks */}
+                {selectedDay.subtasks && selectedDay.subtasks.length > 0 && (
+                  <div className="subtasks-list">
+                    {selectedDay.subtasks.map((subtask) => (
+                      <div key={subtask._id} className="subtask-item">
+                        <label className="subtask-checkbox-label">
+                          <input
+                            type="checkbox"
+                            checked={subtask.completed}
+                            onChange={() => handleToggleSubtask(subtask._id, subtask.completed)}
+                            className="subtask-checkbox"
+                          />
+                          <span className={subtask.completed ? 'subtask-text completed' : 'subtask-text'}>
+                            {subtask.text}
+                          </span>
+                        </label>
+                        <button
+                          className="subtask-delete-btn"
+                          onClick={() => handleDeleteSubtask(subtask._id)}
+                          title="Delete subtask"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
             <div className="modal-actions">
-              <button
-                className="btn btn-primary"
-                onClick={handleSaveTask}
-                disabled={saving}
-              >
-                {saving ? 'Saving...' : ' Save Task'}
-              </button>
               <button
                 className="btn btn-success"
                 onClick={handleMarkComplete}
@@ -280,15 +400,6 @@ function App() {
                   disabled={saving}
                 >
                   ↺ Reset to Pending
-                </button>
-              )}
-              {selectedDay.taskText && selectedDay._id && (
-                <button
-                  className="btn btn-danger"
-                  onClick={handleDeleteTask}
-                  disabled={saving}
-                >
-                  Delete Task
                 </button>
               )}
               <button

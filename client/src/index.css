@@ -268,6 +268,107 @@ body {
   letter-spacing: 0.05em;
 }
 
+/* Checklist Header with Add Button */
+.checklist-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.btn-add-task-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 2px solid var(--primary-color);
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  line-height: 1;
+  padding: 0;
+}
+
+.btn-add-task-icon:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.btn-add-task-icon:active {
+  transform: scale(0.95);
+}
+
+/* Inline Add Task */
+.inline-add-task {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: #f0f4ff;
+  border-radius: 12px;
+  border: 2px solid #c7d2fe;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.inline-task-input {
+  flex: 1;
+  padding: 0.625rem 0.875rem;
+  border: 1.5px solid #e0e7ff;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: all 0.2s;
+  background: white;
+}
+
+.inline-task-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.btn-save-inline-task {
+  padding: 0.625rem 1.25rem;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-save-inline-task:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.btn-save-inline-task:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+
 .task-textarea {
   width: 100%;
   min-height: 150px;
@@ -286,6 +387,163 @@ body {
   border-color: var(--primary-color);
   background: white;
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Subtasks Styles */
+.subtasks-list {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  max-height: 350px;
+  overflow-y: auto;
+  border: 1px solid #e9ecef;
+}
+
+.subtasks-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.subtasks-list::-webkit-scrollbar-track {
+  background: #f1f3f5;
+  border-radius: 4px;
+}
+
+.subtasks-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.subtasks-list::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.subtask-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1rem;
+  background: white;
+  border-radius: 10px;
+  margin-bottom: 0.5rem;
+  transition: all 0.2s;
+  border: 1.5px solid #e5e7eb;
+  gap: 0.5rem;
+}
+
+.subtask-item:last-child {
+  margin-bottom: 0;
+}
+
+.subtask-item:hover {
+  box-shadow: 0 2px 12px rgba(99, 102, 241, 0.12);
+  border-color: #c7d2fe;
+  background: #fafbff;
+}
+
+.subtask-checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  flex: 1;
+  cursor: pointer;
+  user-select: none;
+  padding: 0.25rem 0;
+}
+
+.subtask-checkbox {
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  accent-color: var(--success-color);
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+  border-radius: 4px;
+}
+
+.subtask-text {
+  font-size: 1rem;
+  color: var(--text-primary);
+  transition: all 0.2s;
+  line-height: 1.6;
+  word-break: break-word;
+  font-weight: 400;
+}
+
+.subtask-text.completed {
+  text-decoration: line-through;
+  color: var(--text-secondary);
+  opacity: 0.65;
+  font-weight: 400;
+}
+
+.subtask-delete-btn {
+  background: none;
+  border: none;
+  color: var(--danger-color);
+  font-size: 1.5rem;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.subtask-delete-btn:hover {
+  background: #fee2e2;
+  opacity: 1;
+}
+
+.add-subtask-container {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.subtask-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: all 0.2s;
+  background: white;
+}
+
+.subtask-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.btn-add-subtask {
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-add-subtask:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.btn-add-subtask:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .status-section {
